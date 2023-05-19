@@ -2,12 +2,19 @@
 <%@ page import="java.sql.*" %>
 <%@ page import="java.util.*" %>
 <%
-	// 1. 요청값 검사 // currentPage
+	// 1. 요청값 검사
+	// currentPage
 	int currentPage = 1;
 	if(request.getParameter("currentPage") != null) {
 		currentPage = Integer.parseInt(request.getParameter("currentPage"));
 	}
 	System.out.println(currentPage + " <- currentPage");
+	// rowPerPage
+	int rowPerPage = 10; // 데이터를 몇개씩 출력할지 지정
+	if (request.getParameter("rowPerPage") != null) {
+		rowPerPage = Integer.parseInt(request.getParameter("rowPerPage"));
+	}
+	System.out.println(rowPerPage + " <- rowPerPage");
 	
 	// 2. 모델값
 	// 드라이버 로딩 및 db 접속
@@ -19,7 +26,6 @@
 	Connection conn = DriverManager.getConnection(dburl, dbuser, dbpw);
 	
 	// 2-1) 데이터 출력부 (상단)
-	int rowPerPage = 10; // 데이터를 몇개씩 출력할지 지정
 	/*
 		currentPage		beginRow(시작글번호)		endRow(끝글번호)		rowPerpage
 		1				1						10					10
@@ -29,8 +35,6 @@
 	*/
 	int endRow = currentPage * rowPerPage;
 	int beginRow = endRow - (rowPerPage - 1);
-	System.out.println(beginRow + " <-beginRow");
-	System.out.println(endRow + " <-endRow");
 	// 출력할 데이터의 총 갯수
 	int totalRow = 0;
 	String totalRowSql = "SELECT COUNT(*) FROM employees";
@@ -43,6 +47,9 @@
 	if(endRow > totalRow) {
 		endRow = totalRow;
 	}
+	System.out.println(beginRow + " <-beginRow");
+	System.out.println(endRow + " <-endRow");
+	System.out.println(totalRow + " <-totalRow");
 	// 데이터 출력 쿼리 작성
 	/*
 		select 글번호, 사원아이디, 사원이름, 급여, 전체급여평균, 전체급여합계, 전체사원수
@@ -97,7 +104,7 @@
 	int beginPage = (((currentPage - 1) / pagePerPage) * pagePerPage) + 1;
 	int endPage = beginPage + (pagePerPage - 1);
 	// 마지막 페이지 넘버
-	int lastPage = totalRow / pagePerPage;
+	int lastPage = totalRow / rowPerPage;
 	if(totalRow % rowPerPage != 0) { // 나누어떨어지지 않으면
 		lastPage = lastPage + 1; // 꽉 채워지지 않은 페이지 1개 추가 발생
 	}
@@ -105,6 +112,9 @@
 	if(endPage > lastPage) {
 		endPage = lastPage;
 	}
+	System.out.println(beginPage + " <-beginPage");
+	System.out.println(endPage + " <-endPage");
+	System.out.println(lastPage + " <-lastPage");
 %>
 <!DOCTYPE html>
 <html>
@@ -118,6 +128,19 @@
 </head>
 <body>
 	<h1>windowsFunctionEmpList</h1>
+	<form action="<%=request.getContextPath()%>/windowsFunctionEmpList.jsp" method="post">
+		<select name="rowPerPage" onchange="this.form.submit()"> <!-- 옵션 선택시 바로 submit -->
+			<%
+				for (int i = 5; i <= 50; i = i + 5) {
+			%>
+					<option value="<%=i%>" <%if (rowPerPage == i) {%> selected <%}%>>
+						<%=i%>개씩
+					</option>
+			<%
+				}
+			%>
+		</select>
+	</form>
 	<!-- 데이터 출력부 -->
 	<table>
 		<tr>
@@ -150,7 +173,7 @@
 		// 이전은 1페이지에서는 출력되면 안 된다
 		if(beginPage != 1) {
 	%>
-			<a href="<%=request.getContextPath()%>/windowsFunctionEmpList.jsp?currentPage=<%=beginPage - 1%>">이전</a>
+			<a href="<%=request.getContextPath()%>/windowsFunctionEmpList.jsp?currentPage=<%=beginPage - 1%>&rowPerPage=<%=rowPerPage%>">이전</a>
 	<%
 		}
 	%>
@@ -163,7 +186,7 @@
 	<%
 			} else {
 	%>
-				<a href="<%=request.getContextPath()%>/windowsFunctionEmpList.jsp?currentPage=<%=i%>"><%=i%></a>&nbsp;
+				<a href="<%=request.getContextPath()%>/windowsFunctionEmpList.jsp?currentPage=<%=i%>&rowPerPage=<%=rowPerPage%>"><%=i%></a>&nbsp;
 	<%
 			}
 		}
@@ -173,7 +196,7 @@
 		// 다음은 마지막 페이지에서는 출력되면 안 된다
 		if(endPage != lastPage) {
 	%>
-			<a href="<%=request.getContextPath()%>/windowsFunctionEmpList.jsp?currentPage=<%=endPage + 1%>">다음</a>
+			<a href="<%=request.getContextPath()%>/windowsFunctionEmpList.jsp?currentPage=<%=endPage + 1%>&rowPerPage=<%=rowPerPage%>">다음</a>
 	<%
 		}
 	%>
