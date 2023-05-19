@@ -29,8 +29,6 @@
 	*/
 	int endRow = currentPage * rowPerPage;
 	int beginRow = endRow - (rowPerPage - 1);
-	System.out.println(beginRow + " <-beginRow");
-	System.out.println(endRow + " <-endRow");
 	// 출력할 데이터의 총 갯수
 	int totalRow = 0;
 	String totalRowSql = "SELECT COUNT(*) FROM employees";
@@ -43,6 +41,9 @@
 	if(endRow > totalRow) {
 		endRow = totalRow;
 	}
+	System.out.println(beginRow + " <-beginRow");
+	System.out.println(endRow + " <-endRow");
+	System.out.println(totalRow + " <-totalRow");
 	// 데이터 출력 쿼리 작성
 	/*
 		select 글번호, 사원아이디, 사원이름, 급여, 급여순위
@@ -93,7 +94,7 @@
 	int beginPage = (((currentPage - 1) / pagePerPage) * pagePerPage) + 1;
 	int endPage = beginPage + (pagePerPage - 1);
 	// 마지막 페이지 넘버
-	int lastPage = totalRow / pagePerPage;
+	int lastPage = totalRow / rowPerPage;
 	if(totalRow % rowPerPage != 0) { // 나누어떨어지지 않으면
 		lastPage = lastPage + 1; // 꽉 채워지지 않은 페이지 1개 추가 발생
 	}
@@ -101,6 +102,9 @@
 	if(endPage > lastPage) {
 		endPage = lastPage;
 	}
+	System.out.println(beginPage + " <-beginPage");
+	System.out.println(endPage + " <-endPage");
+	System.out.println(lastPage + " <-lastPage");
 %>
 <!DOCTYPE html>
 <html>
